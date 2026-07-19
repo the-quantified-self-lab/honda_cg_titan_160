@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#10141A">
+<title>Oficina · CG 160 Titan</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#10141A; --bg2:#161B22; --card:#1C222B; --card2:#20272F;
+  --line:#2A313B; --line2:#353E4A;
+  --ink:#EAEDF1; --muted:#8B94A0; --dim:#5D6672;
+  --amber:#F4A63A; --red:#EB5545; --ok:#37B6A0; --steel:#5B8DEF;
+  --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #182029 0%, transparent 60%),
+    var(--bg);
+  color:var(--ink); font-family:var(--sans);
+  -webkit-font-smoothing:antialiased; line-height:1.45;
+  padding:0 0 96px;
+}
+.wrap{max-width:680px;margin:0 auto;padding:0 16px}
+a{color:var(--steel)}
+
+/* ---------- Header / odometer ---------- */
+header{padding:26px 0 6px}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--amber);
+}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--amber);
+  box-shadow:0 0 10px var(--amber)}
+h1{font-size:20px;margin:8px 0 2px;letter-spacing:-.01em;font-weight:650}
+.sub{color:var(--muted);font-size:13px;margin:0}
+
+.odo{
+  margin:20px 0 8px;padding:18px 18px 16px;border-radius:18px;
+  background:linear-gradient(180deg,var(--card2),var(--card));
+  border:1px solid var(--line);box-shadow:var(--shadow);
+  position:relative;overflow:hidden;
+}
+.odo::before{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(244,166,58,.06),transparent);
+  transform:translateX(-100%);animation:sheen 6s ease-in-out infinite}
+@keyframes sheen{0%,70%{transform:translateX(-100%)}85%,100%{transform:translateX(100%)}}
+.odo .k{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim)}
+.odo-read{display:flex;align-items:baseline;gap:10px;margin-top:4px}
+.odo-num{font-family:var(--mono);font-weight:700;font-size:44px;letter-spacing:.02em;
+  line-height:1;color:var(--ink);cursor:pointer;position:relative}
+.odo-num .cur{color:var(--amber)}
+.odo-num:active{transform:scale(.99)}
+.odo-unit{font-family:var(--mono);color:var(--muted);font-size:16px}
+.odo-edit{font-size:11px;color:var(--dim);margin-left:6px}
+.status-row{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;
+  font-family:var(--mono);padding:6px 11px;border-radius:999px;
+  background:var(--bg2);border:1px solid var(--line)}
+.pill b{font-weight:700}
+.pill.red{color:var(--red);border-color:rgba(235,85,69,.35)}
+.pill.amber{color:var(--amber);border-color:rgba(244,166,58,.35)}
+.pill.ok{color:var(--ok);border-color:rgba(55,182,160,.35)}
+.pill .lamp{width:8px;height:8px;border-radius:50%;background:currentColor;
+  box-shadow:0 0 8px currentColor}
+
+/* ---------- Section ---------- */
+.section{margin:26px 0 6px;display:flex;align-items:center;justify-content:space-between}
+.section h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);margin:0;font-weight:600;font-family:var(--mono)}
+.section .rule{flex:1;height:1px;background:var(--line);margin:0 12px}
+
+/* ---------- Service cards (upcoming) ---------- */
+.svc{
+  background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px 14px 12px;margin:10px 0;position:relative;
+}
+.svc.overdue{border-color:rgba(235,85,69,.45);
+  background:linear-gradient(180deg,rgba(235,85,69,.06),var(--card))}
+.svc.soon{border-color:rgba(244,166,58,.40)}
+.svc-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.svc-name{font-weight:600;font-size:15px;margin:0}
+.svc-when{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:3px}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 8px;border-radius:7px;white-space:nowrap;font-weight:600}
+.tag.red{color:#150607;background:var(--red)}
+.tag.amber{color:#1a1204;background:var(--amber)}
+.tag.ok{color:#04140f;background:var(--ok)}
+.gauge{margin-top:11px;height:7px;border-radius:6px;background:var(--bg);
+  overflow:hidden;position:relative;border:1px solid var(--line)}
+.gauge > span{display:block;height:100%;border-radius:6px;
+  transition:width .5s cubic-bezier(.2,.8,.2,1)}
+.gauge.tick{background-image:repeating-linear-gradient(90deg,transparent 0 calc(10% - 1px),var(--line) calc(10% - 1px) 10%)}
+.svc-meta{display:flex;justify-content:space-between;margin-top:7px;
+  font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+/* ---------- History ---------- */
+.hentry{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.hentry:last-child{border-bottom:0}
+.hdate{flex:0 0 76px;font-family:var(--mono);font-size:12px;color:var(--muted);
+  padding-top:2px;text-align:right}
+.hdate .yr{display:block;color:var(--dim);font-size:11px}
+.hbody{flex:1;min-width:0}
+.hkm{font-family:var(--mono);font-size:11px;color:var(--amber);letter-spacing:.04em}
+.hitems{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.hitems li{font-size:12.5px;color:var(--ink);background:var(--bg2);
+  border:1px solid var(--line);border-radius:7px;padding:3px 8px}
+.hnote{color:var(--muted);font-size:12.5px;margin-top:6px;font-style:italic}
+.hdel{background:none;border:0;color:var(--dim);font-size:12px;cursor:pointer;
+  font-family:var(--mono);padding:2px 4px}
+.hdel:hover{color:var(--red)}
+
+/* ---------- Buttons / FAB ---------- */
+.fab{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);
+  z-index:40;display:flex;gap:10px}
+.btn{font-family:var(--sans);font-weight:600;font-size:14px;border-radius:12px;
+  border:1px solid var(--line2);background:var(--card2);color:var(--ink);
+  padding:12px 18px;cursor:pointer;box-shadow:var(--shadow)}
+.btn.primary{background:var(--amber);color:#160f02;border-color:var(--amber)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;box-shadow:none;border-color:var(--line);color:var(--muted);
+  padding:8px 12px;font-size:12.5px}
+
+/* ---------- Modal / sheet ---------- */
+.sheet-bg{position:fixed;inset:0;background:rgba(6,8,11,.6);backdrop-filter:blur(3px);
+  z-index:50;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg.open{display:flex}
+.sheet{width:100%;max-width:680px;background:var(--bg2);
+  border:1px solid var(--line);border-bottom:0;
+  border-radius:20px 20px 0 0;padding:18px 16px calc(20px + env(safe-area-inset-bottom));
+  max-height:88vh;overflow:auto;animation:rise .28s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{transform:translateY(20px);opacity:.4}to{transform:translateY(0);opacity:1}}
+.sheet h3{margin:2px 0 14px;font-size:16px}
+.grip{width:40px;height:4px;border-radius:3px;background:var(--line2);margin:0 auto 14px}
+label.f{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px;
+  font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+input[type=date],input[type=number],input[type=text],textarea{
+  width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;
+  color:var(--ink);font-size:15px;padding:11px 12px;font-family:var(--sans)}
+input:focus,textarea:focus{outline:2px solid rgba(244,166,58,.5);border-color:transparent}
+textarea{min-height:64px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+.chip{font-size:13px;padding:8px 12px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);color:var(--muted);cursor:pointer;user-select:none}
+.chip.on{background:rgba(244,166,58,.16);border-color:var(--amber);color:var(--amber)}
+.row2{display:flex;gap:10px}.row2>div{flex:1}
+.sheet-actions{display:flex;gap:10px;margin-top:18px}
+.sheet-actions .btn{flex:1;justify-content:center;text-align:center}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+footer{color:var(--dim);font-size:11px;text-align:center;margin-top:30px;font-family:var(--mono);
+  line-height:1.7}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge"><span class="dot"></span>Oficina de bolso</span>
+    <h1>Honda CG 160 Titan · 2022</h1>
+    <p class="sub">Histórico de manutenção e próximas trocas no radar</p>
+
+    <div class="odo">
+      <div class="k">Hodômetro atual</div>
+      <div class="odo-read">
+        <div class="odo-num" id="odo" title="Toque para atualizar a quilometragem">—<span class="cur"></span></div>
+        <span class="odo-unit">km</span>
+        <span class="odo-edit">✎ toque p/ editar</span>
+      </div>
+      <div class="status-row" id="statusRow"></div>
+    </div>
+  </header>
+
+  <div class="section"><h2>Próximas trocas</h2><div class="rule"></div></div>
+  <div id="upcoming"></div>
+
+  <div class="section">
+    <h2>Histórico</h2><div class="rule"></div>
+    <button class="btn ghost" id="btnTools">⚙︎ dados</button>
+  </div>
+  <div id="history"></div>
+
+  <footer>
+    Intervalos conforme manual Honda CG 160 FAN/TITAN 2022.<br>
+    Os dados ficam salvos só neste aparelho. Faça backup em ⚙︎ dados.
+  </footer>
+</div>
+
+<div class="fab">
+  <button class="btn primary" id="btnAdd">+ Registrar serviço</button>
+</div>
+
+<!-- Sheet: add service -->
+<div class="sheet-bg" id="sheetAdd">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3 id="addTitle">Registrar serviço</h3>
+    <div class="row2">
+      <div>
+        <label class="f">Data</label>
+        <input type="date" id="fDate">
+      </div>
+      <div>
+        <label class="f">Km</label>
+        <input type="number" id="fKm" inputmode="numeric" placeholder="ex: 32030">
+      </div>
+    </div>
+    <label class="f">O que foi feito</label>
+    <div class="chips" id="fChips"></div>
+    <label class="f">Observações</label>
+    <textarea id="fNote" placeholder="marca do óleo, peça, oficina, o que notou…"></textarea>
+    <label class="f">Custo (opcional)</label>
+    <input type="number" id="fCost" inputmode="decimal" placeholder="R$">
+    <div class="sheet-actions">
+      <button class="btn ghost" id="addCancel">Cancelar</button>
+      <button class="btn primary" id="addSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet: km -->
+<div class="sheet-bg" id="sheetKm">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>Atualizar hodômetro</h3>
+    <label class="f">Km atual</label>
+    <input type="number" id="kmInput" inputmode="numeric">
+    <div class="sheet-actions">
+      <button class="btn ghost" id="kmCancel">Cancelar</button>
+      <button class="btn primary" id="kmSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sheet: tools -->
+<div class="sheet-bg" id="sheetTools">
+  <div class="sheet">
+    <div class="grip"></div>
+    <h3>Dados & backup</h3>
+    <p class="sub" style="margin:0 0 4px">Exporte um arquivo de backup ou cole um para restaurar. Tudo fica só neste aparelho.</p>
+    <div class="tools">
+      <button class="btn" id="tExport">⬇︎ Exportar backup (.json)</button>
+      <button class="btn" id="tImport">⬆︎ Importar backup</button>
+    </div>
+    <div class="tools">
+      <button class="btn ghost" id="tReset">↺ Restaurar dados originais</button>
+      <button class="btn ghost" id="toolsClose">Fechar</button>
+    </div>
+    <input type="file" id="fileInput" accept="application/json" class="hidden">
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- Persistence (safe) ---------- */
+const KEY="cg160-titan-v1";
+let mem=null;
+function load(){
+  try{const r=localStorage.getItem(KEY);return r?JSON.parse(r):null;}
+  catch(e){return mem;}
+}
+function save(s){
+  try{localStorage.setItem(KEY,JSON.stringify(s));}
+  catch(e){mem=s;}
+}
+
+/* ---------- Maintenance rules (Honda CG 160 Titan 2022) ---------- */
+/* code: matches history item codes | km: intervalo | months: intervalo por tempo
+   milestone: usa múltiplos do intervalo quando não há registro
+   urgent: força "vencido" (itens que a avaliação apontou em atraso) */
+const RULES=[
+  {code:"oleo",        name:"Óleo do motor",                 km:3000,  months:12, note:"10W-30 SL · JASO MA2 · 1,0 L"},
+  {code:"corrente",    name:"Corrente: lubrificar e ajustar", km:1000,  milestone:true, note:"folga 15–25 mm"},
+  {code:"valvulas",    name:"Folga das válvulas",             km:6000,  urgent:true, note:"verificar/ajustar — sem registro"},
+  {code:"fluido_freio",name:"Fluido de freio (diant. + CBS)", months:24, urgent:true, note:"DOT 4 — sem registro"},
+  {code:"vela",        name:"Vela de ignição",                km:12000, milestone:true, note:"folga 0,80–0,90 mm"},
+  {code:"filtro_comb", name:"Filtro de combustível",          km:12000, milestone:true},
+  {code:"centrifugo",  name:"Tela + filtro centrífugo de óleo",km:12000},
+  {code:"filtro_ar",   name:"Filtro de ar (viscoso)",         km:18000, note:"trocar, nunca limpar"},
+  {code:"susp_diant",  name:"Fluido da suspensão dianteira",  km:24000, milestone:true},
+  {code:"susp_tras",   name:"Lubrificar suspensão traseira",  km:24000, milestone:true},
+  {code:"rolamentos",  name:"Rolamentos/alinhamento + reaperto",km:12000, milestone:true}
+];
+/* chips no formulário */
+const CHIPS=[
+  ["oleo","Óleo do motor"],["centrifugo","Tela+filtro centrífugo"],
+  ["valvulas","Válvulas"],["fluido_freio","Fluido de freio"],
+  ["vela","Vela"],["filtro_ar","Filtro de ar"],["filtro_comb","Filtro combustível"],
+  ["corrente","Corrente (lubrif./ajuste)"],["kit_transmissao","Kit transmissão"],
+  ["pastilhas","Pastilhas diant."],["sapatas","Sapatas tras."],
+  ["cabos","Cabos acelerador"],["pneus","Pneus"],["susp_diant","Susp. dianteira"],
+  ["susp_tras","Susp. traseira"],["rolamentos","Rolamentos/reaperto"],["outro","Outro"]
+];
+const LABEL=Object.fromEntries(CHIPS);
+
+/* ---------- Seed (histórico real informado) ---------- */
+function seed(){
+  return {
+    km:32030,
+    services:[
+      {id:1, date:"2024-09-25", km:27500, items:["oleo","filtro_ar","centrifugo","cabos"],
+       note:"Óleo Ipiranga 4T 10W30 SL. Filtro de ar Tecfil. Cabos A/B (dono anterior nunca trocou)."},
+      {id:2, date:"2024-11-04", km:28000, items:["oleo"], note:"Óleo Ipiranga 4T 10W30 SL."},
+      {id:3, date:"2025-01-28", km:null,  items:["cabos","sapatas","kit_transmissao"],
+       note:"Cabos A/B romperam e foram refeitos (estes duram até hoje). Kit de transmissão final novo."},
+      {id:4, date:"2025-04-12", km:29000, items:["pastilhas","oleo"], note:"Óleo Mobil 10W30 MX JASO MA2 SL."},
+      {id:5, date:"2025-10-02", km:30000, items:["oleo","centrifugo"], note:"Óleo Mobil 10W30 MX JASO MA2 SL."},
+      {id:6, date:"2026-03-03", km:31000, items:["oleo"], note:"Óleo Mobil 10W30 MX JASO MA2 SL."},
+      {id:7, date:"2026-07-18", km:32000, items:["oleo"], note:"Óleo Mobil 10W30 MX JASO MA2 SL."}
+    ]
+  };
+}
+let state=load()||seed();
+if(!load()) save(state);
+
+/* ---------- Helpers ---------- */
+const $=s=>document.querySelector(s);
+const fmt=n=>n==null?"—":n.toLocaleString("pt-BR");
+const todayISO=()=>new Date().toISOString().slice(0,10);
+function parseD(iso){const[y,m,d]=iso.split("-").map(Number);return new Date(y,m-1,d);}
+function monthsBetween(a,b){return (b-a)/(1000*60*60*24*30.4375);}
+function daysBetween(a,b){return Math.round((b-a)/(1000*60*60*24));}
+function ptDate(iso){const[y,m,d]=iso.split("-");return `${d}/${m}`;}
+function ptYear(iso){return iso.split("-")[0];}
+function addMonths(date,mm){const d=new Date(date);d.setMonth(d.getMonth()+mm);return d;}
+
+/* última ocorrência de um código no histórico (com km conhecido) */
+function lastFor(code){
+  const done=state.services
+    .filter(s=>s.items.includes(code))
+    .sort((a,b)=>a.date<b.date?1:-1);
+  return done[0]||null;
+}
+
+/* ---------- Compute upcoming ---------- */
+function computeUpcoming(){
+  const now=new Date(); now.setHours(0,0,0,0);
+  const cur=state.km;
+  const out=[];
+  for(const r of RULES){
+    const last=lastFor(r.code);
+    let kmDue=null,dateDue=null,kmPct=0,timePct=0,basisKm=null,basisDate=null;
+
+    if(last){
+      basisKm=last.km; basisDate=last.date;
+      if(r.km && last.km!=null){kmDue=last.km+r.km; kmPct=(cur-last.km)/r.km;}
+      if(r.months){dateDue=addMonths(parseD(last.date),r.months);
+        timePct=monthsBetween(parseD(last.date),now)/r.months;}
+    } else if(r.milestone && r.km){
+      kmDue=Math.ceil((cur+1)/r.km)*r.km; // próximo marco à frente
+      kmPct=(cur-(kmDue-r.km))/r.km;
+    }
+
+    let status="ok", pct=Math.max(kmPct,timePct);
+    if(r.urgent){status="overdue"; pct=1;}
+    else{
+      const kmOver = kmDue!=null && cur>=kmDue;
+      const timeOver = dateDue!=null && now>=dateDue;
+      if(kmOver||timeOver) status="overdue";
+      else{
+        const kmSoon = kmDue!=null && (kmDue-cur)<=500;
+        const timeSoon = dateDue!=null && daysBetween(now,dateDue)<=60;
+        if(kmSoon||timeSoon) status="soon";
+      }
+    }
+    pct=Math.max(0,Math.min(1,pct||0));
+
+    // texto "quando"
+    let when;
+    if(r.urgent){ when = "Recomendado agora — sem registro no histórico"; }
+    else{
+      const parts=[];
+      if(kmDue!=null){
+        const dk=kmDue-cur;
+        parts.push(dk<=0?`km vencido (${fmt(kmDue)})`:`faltam ${fmt(dk)} km · ${fmt(kmDue)}`);
+      }
+      if(dateDue!=null){
+        const dd=daysBetween(now,dateDue);
+        parts.push(dd<=0?`prazo vencido`:`ou em ${dd} dias · ${dateDue.toLocaleDateString("pt-BR")}`);
+      }
+      when=parts.join("  ·  ")||"sem intervalo definido";
+    }
+
+    out.push({r,status,pct,when,kmDue,dateDue,basisKm,basisDate,
+      sortKey: status==="overdue"?0:status==="soon"?1:2, dist: kmDue!=null?(kmDue-cur):9e9});
+  }
+  out.sort((a,b)=> a.sortKey-b.sortKey || a.pct*-1 - b.pct*-1 || a.dist-b.dist);
+  return out;
+}
+
+/* ---------- Render ---------- */
+function color(s){return s==="overdue"?"red":s==="soon"?"amber":"ok";}
+function tagText(s){return s==="overdue"?"vencido":s==="soon"?"em breve":"em dia";}
+
+function render(){
+  // odometer
+  $("#odo").innerHTML = `${fmt(state.km)}`;
+
+  // status pills
+  const up=computeUpcoming();
+  const n={overdue:0,soon:0,ok:0};
+  up.forEach(u=>n[u.status]++);
+  const sr=$("#statusRow");
+  sr.innerHTML="";
+  const mk=(cls,lab,val)=>`<span class="pill ${cls}"><span class="lamp"></span><b>${val}</b> ${lab}</span>`;
+  sr.innerHTML =
+    mk("red","vencido"+(n.overdue!=1?"s":""),n.overdue)+
+    mk("amber","no radar",n.soon)+
+    mk("ok","em dia",n.ok);
+
+  // upcoming cards
+  const box=$("#upcoming"); box.innerHTML="";
+  for(const u of up){
+    const c=color(u.status);
+    const el=document.createElement("div");
+    el.className="svc "+(u.status==="overdue"?"overdue":u.status==="soon"?"soon":"");
+    const meta = (u.basisKm!=null||u.basisDate)
+      ? `<span>último: ${u.basisKm!=null?fmt(u.basisKm)+" km":"—"}${u.basisDate?" · "+u.basisDate.split("-").reverse().join("/"):""}</span>`
+      : `<span>sem registro</span>`;
+    el.innerHTML=`
+      <div class="svc-top">
+        <div>
+          <p class="svc-name">${u.r.name}</p>
+          <div class="svc-when">${u.when}</div>
+        </div>
+        <span class="tag ${c}">${tagText(u.status)}</span>
+      </div>
+      <div class="gauge tick"><span style="width:${Math.round(u.pct*100)}%;background:var(--${c})"></span></div>
+      <div class="svc-meta">${meta}<span>${u.r.note||""}</span></div>`;
+    box.appendChild(el);
+  }
+
+  // history
+  const h=$("#history"); h.innerHTML="";
+  const sorted=[...state.services].sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:b.id-a.id);
+  for(const s of sorted){
+    const el=document.createElement("div");
+    el.className="hentry";
+    const items=s.items.map(i=>`<li>${LABEL[i]||i}</li>`).join("");
+    el.innerHTML=`
+      <div class="hdate">${ptDate(s.date)}<span class="yr">${ptYear(s.date)}</span></div>
+      <div class="hbody">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <span class="hkm">${s.km!=null?fmt(s.km)+" km":"km não anotado"}</span>
+          <button class="hdel" data-id="${s.id}">excluir</button>
+        </div>
+        <ul class="hitems">${items}</ul>
+        ${s.note?`<div class="hnote">${s.note}</div>`:""}
+      </div>`;
+    h.appendChild(el);
+  }
+  h.querySelectorAll(".hdel").forEach(b=>b.onclick=()=>{
+    if(confirm("Excluir este registro?")){
+      state.services=state.services.filter(x=>x.id!=b.dataset.id);
+      save(state); render();
+    }
+  });
+}
+
+/* ---------- Sheets ---------- */
+function open(id){$(id).classList.add("open")}
+function close(id){$(id).classList.remove("open")}
+document.querySelectorAll(".sheet-bg").forEach(bg=>{
+  bg.addEventListener("click",e=>{if(e.target===bg)bg.classList.remove("open")});
+});
+
+/* km editor */
+$("#odo").onclick=()=>{$("#kmInput").value=state.km;open("#sheetKm");setTimeout(()=>$("#kmInput").focus(),100)};
+$("#kmCancel").onclick=()=>close("#sheetKm");
+$("#kmSave").onclick=()=>{
+  const v=parseInt($("#kmInput").value,10);
+  if(!isNaN(v)&&v>0){state.km=v;save(state);render();}
+  close("#sheetKm");
+};
+
+/* add service */
+let selected=new Set();
+function buildChips(){
+  const box=$("#fChips");box.innerHTML="";
+  CHIPS.forEach(([code,label])=>{
+    const c=document.createElement("span");
+    c.className="chip"+(selected.has(code)?" on":"");
+    c.textContent=label;
+    c.onclick=()=>{selected.has(code)?selected.delete(code):selected.add(code);
+      c.classList.toggle("on");};
+    box.appendChild(c);
+  });
+}
+$("#btnAdd").onclick=()=>{
+  selected=new Set();
+  $("#fDate").value=todayISO();
+  $("#fKm").value=state.km;
+  $("#fNote").value="";$("#fCost").value="";
+  buildChips();
+  open("#sheetAdd");
+};
+$("#addCancel").onclick=()=>close("#sheetAdd");
+$("#addSave").onclick=()=>{
+  if(selected.size===0){alert("Selecione ao menos um item.");return;}
+  const km=parseInt($("#fKm").value,10);
+  const s={
+    id:Date.now(),
+    date:$("#fDate").value||todayISO(),
+    km:isNaN(km)?null:km,
+    items:[...selected],
+    note:$("#fNote").value.trim(),
+    cost:$("#fCost").value?parseFloat($("#fCost").value):null
+  };
+  state.services.push(s);
+  if(s.km!=null && s.km>state.km) state.km=s.km; // avança hodômetro
+  save(state);render();close("#sheetAdd");
+};
+
+/* tools */
+$("#btnTools").onclick=()=>open("#sheetTools");
+$("#toolsClose").onclick=()=>close("#sheetTools");
+$("#tExport").onclick=()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`cg160-backup-${todayISO()}.json`;
+  a.click();URL.revokeObjectURL(a.href);
+};
+$("#tImport").onclick=()=>$("#fileInput").click();
+$("#fileInput").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{
+    const data=JSON.parse(rd.result);
+    if(data&&Array.isArray(data.services)){state=data;save(state);render();close("#sheetTools");}
+    else alert("Arquivo inválido.");
+  }catch(err){alert("Não consegui ler o arquivo.");}};
+  rd.readAsText(f);
+};
+$("#tReset").onclick=()=>{
+  if(confirm("Isso apaga suas alterações e volta ao histórico original. Continuar?")){
+    state=seed();save(state);render();close("#sheetTools");
+  }
+};
+
+render();
+
+/* ---------- PWA / offline ---------- */
+if("serviceWorker" in navigator){
+  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{});});
+}
+</script>
+</body>
+</html>
